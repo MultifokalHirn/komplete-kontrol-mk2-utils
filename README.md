@@ -1,151 +1,134 @@
-# qKontrol (Komplete Kontrol MK2 Utilities)
+# qKontrol — Komplete Kontrol MK2 Utilities
 
-qKontrol is a Qt desktop application for Linux, macOS, and Windows that directly configures **Native Instruments Komplete Kontrol MK2** keyboards (S49/S61/S88 MK2) over HID/USB, without depending on Native Instruments' host software.
+> Qt desktop utility for **Native Instruments Komplete Kontrol MK2** keyboards — configure MIDI mappings, display content, key zones, and DAW integration directly over HID/USB, without vendor software.
 
-It is intended for users who want full control over MIDI mappings, light guide behavior, display content, key zones, pedal behavior, and optional OSC-based DAW integration.
+[![License: LGPL](https://img.shields.io/badge/License-LGPL-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey)](#supported-hardware--platforms)
+[![Qt](https://img.shields.io/badge/Qt-5-green.svg)](https://www.qt.io/)
+
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Supported Hardware & Platforms](#supported-hardware--platforms)
+- [Getting Started](#getting-started)
+  - [Dependencies](#dependencies)
+  - [Build](#build)
+  - [First Launch](#first-launch)
+- [Usage](#usage)
+  - [Workflow Overview](#workflow-overview)
+  - [Mapping Controls](#mapping-controls)
+- [OSC Integration](#osc-integration)
+- [Configuration & Presets](#configuration--presets)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [Roadmap](#roadmap)
+- [License](#license)
 
 ---
 
 ## Features
 
-- Device discovery and direct HID communication with Komplete Kontrol MK2 hardware (vendor `0x17cc`, product IDs for 49/61/88-key MK2 models).
-- Full mapping of:
-  - 8 touch knobs
-  - button banks/pages
-  - keybed zones/splits
-  - sliders and wheel behavior
-  - pedal/tip/ring control modes
-- Per-control MIDI channel/CC assignment options and mode-dependent parameter visibility.
-- Color and display rendering customization for labels/value lines shown on the hardware screens.
-- Runtime display drawing and updates (including parameter values and track/device status overlays).
-- Preset system with save/load support using `.qcp` XML files.
-- Embedded left/right display bitmaps stored in preset files as Base64 PNG blobs.
-- Preset-folder browsing from hardware navigation buttons (next/previous preset in same directory).
-- Optional OSC integration for DAW transport and plugin/device parameter workflows.
-- OSC dialog + persistent OSC settings in user config (`~/.qkontrol/osc.ini`).
-- Light guide / button backlight update support.
-- Cross-platform Qt GUI application project (`qmake` + `.pro` file).
+- 🔌 **Direct HID/USB communication** — no Native Instruments host software required (vendor `0x17cc`, S49/S61/S88 MK2 product IDs)
+- 🎛️ **Full control mapping** — 8 touch knobs, button banks/pages, keybed zones/splits, sliders, pitch/mod wheels, and pedal/tip/ring modes
+- 🎨 **Display customization** — per-control labels, value lines, color themes, and custom left/right screen images
+- 💡 **Light guide & backlights** — update button and key backlights via HID output packets
+- 💾 **Preset system** — save/load `.qcp` XML preset files with embedded Base64 display bitmaps; browse presets from hardware navigation buttons
+- 📡 **Optional OSC integration** — DAW transport (play/stop/record/click/loop), parameter value forwarding, and plugin-mode parameter name overlays
+- 🖥️ **Cross-platform Qt GUI** — built with `qmake` + `.pro`; runs on Linux, macOS, and Windows
 
 ---
 
-## Use cases
+## Screenshots
 
-- Build a custom MK2 MIDI template for live performance, with zone splits and dedicated controls.
-- Run the keyboard as a DAW controller in Linux environments where vendor tooling is limited.
-- Assign transport functions (play/stop/record/click/loop) using OSC messages to Bitwig-compatible endpoints.
-- Create per-song preset files and switch between them quickly from the keyboard’s preset buttons.
-- Deploy a controller setup across multiple machines by copying `.qcp` preset files and `osc.ini`.
-- Customize hardware screen visuals with your own left/right images and color themes.
-- Operate Komplete Kontrol MK2 in plugin/parameter-focused mode with named parameter overlays.
+| Display customization | Button mapping | Knob mapping |
+|:---:|:---:|:---:|
+| ![LCD](images/lcd.png) | ![Buttons](images/buttons.png) | ![Knobs](images/knobs.png) |
 
----
+| Sliders & wheels | Key zones | Pedal mapping |
+|:---:|:---:|:---:|
+| ![Sliders](images/sliders.png) | ![Zones](images/zones.png) | ![Pedals](images/pedals.png) |
 
-## Screenshots and UI references
-
-### Main display customization
-![MK2 LCD preview](images/lcd.png)
-
-### Button mapping and behavior
-![Buttons view](images/buttons.png)
-
-### Knob mapping
-![Knobs view](images/knobs.png)
-
-### Slider and wheel controls
-![Sliders view](images/sliders.png)
-
-### Key zones and splits
-![Zones view](images/zones.png)
-
-### Pedal mapping
-![Pedals view](images/pedals.png)
-
-### OSC configuration and workflow context
-![OSC mode](images/osc.png)
-
-### Plugin mode behavior
-![Plugin mode](images/pluginmode.jpg)
-
-### Display asset examples
-![Display example](images/display.png)
+| OSC configuration | Plugin mode | Display assets |
+|:---:|:---:|:---:|
+| ![OSC](images/osc.png) | ![Plugin mode](images/pluginmode.jpg) | ![Display](images/display.png) |
 
 ---
 
-## Supported hardware and platform scope
+## Supported Hardware & Platforms
 
 ### Hardware
-- Supported: Komplete Kontrol MK2 generation with dual displays (typically S49/S61/S88 MK2).
-- Not supported: first-generation Komplete Kontrol keyboards, and M32/A-series hardware.
 
-### Operating systems
-- Linux
-- macOS
-- Windows
+| Model | USB Vendor/Product | Status |
+|---|---|---|
+| Komplete Kontrol S49/S61/S88 **MK2** (dual displays) | `0x17cc` / MK2 product IDs | ✅ Supported |
+| Komplete Kontrol first-generation | — | ❌ Not supported |
+| M32 / A-series | — | ❌ Not supported |
 
-> Note: Functionality and setup complexity differ by OS due to HID access rules and driver behavior.
+### Operating Systems
 
----
+| OS | Status |
+|---|---|
+| Linux | ✅ |
+| macOS | ✅ |
+| Windows | ✅ |
 
-## Project architecture (for users and contributors)
-
-- `source/main.cpp` initializes Qt app lifecycle and opens the main window.
-- `source/qkontrol.cpp` implements most runtime behavior:
-  - HID initialization/device open
-  - UI wiring and widget updates
-  - real-time input polling and value updates
-  - key zone/button payload submission
-  - OSC send/receive handling
-  - preset save/load
-- `source/oscdialog.cpp` handles OSC config dialog and persistence to `~/.qkontrol/osc.ini`.
-- `source/qkontrol.ui` and `source/oscdialog.ui` define UI layout in Qt Designer format.
-- `source/qkontrol.pro` defines Qt modules and per-platform library linkage.
-- `source/79-udev-komplete.rules` is provided for Linux udev permissions setup.
+> **Note:** Setup complexity differs per OS due to HID access rules and driver behavior.
 
 ---
 
-## Installation and build manual
+## Getting Started
 
-## 1) Runtime dependencies
+### Dependencies
 
-### Linux runtime dependencies
-- Qt5 runtime components
-- `libhidapi` (libusb backend)
-- `libusb-1.0`
+<details>
+<summary><strong>Linux</strong></summary>
 
-Example install (Debian/Ubuntu families):
+**Runtime**
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y libqt5gui5 libqt5test5 libhidapi-libusb0 libusb-1.0-0
 ```
 
-### Linux build dependencies
+**Build**
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y qtbase5-dev-tools qtbase5-dev build-essential libhidapi-dev libhidapi-libusb0 libusb-1.0-0-dev
 ```
 
-### macOS dependencies
-- Xcode command line/developer tools
-- Qt (with Qt Creator if you prefer IDE build)
-- Homebrew `libusb` and `hidapi`
+</details>
+
+<details>
+<summary><strong>macOS</strong></summary>
+
+- Xcode command-line tools
+- [Qt](https://www.qt.io/download) (Qt Creator recommended)
+- Homebrew packages:
 
 ```bash
 brew install libusb hidapi
 ```
 
-### Windows dependencies
+</details>
+
+<details>
+<summary><strong>Windows</strong></summary>
+
 - Native Instruments Komplete Kontrol MK2 drivers (for MIDI path)
-- Zadig (to replace a specific USB device driver for this app's HID access path)
-- MSYS2 packages (`mingw-w64-x86_64-hidapi`, `mingw-w64-x86_64-libusb`)
-- Qt for Windows (build with MinGW 64-bit toolchain)
+- [Zadig](https://zadig.akeo.ie/) to replace the target HID interface driver
+- MSYS2 packages: `mingw-w64-x86_64-hidapi`, `mingw-w64-x86_64-libusb`
+- [Qt for Windows](https://www.qt.io/download) with MinGW 64-bit toolchain
 
----
+</details>
 
-## 2) Build steps
+### Build
 
-### Linux (qmake + make)
+<details>
+<summary><strong>Linux</strong> — qmake + make</summary>
 
 From `source/`:
 
@@ -155,220 +138,188 @@ make -j"$(nproc)"
 strip qkontrol
 ```
 
-Depending on distro and Qt packaging, `qmake` may be available directly in PATH.
+`qmake` may also be available directly in `$PATH` depending on your distro.
 
-### macOS
-- Open `source/qkontrol.pro` in Qt Creator and build.
-- Optional redistribution step:
+</details>
+
+<details>
+<summary><strong>macOS</strong> — Qt Creator</summary>
+
+1. Open `source/qkontrol.pro` in Qt Creator.
+2. Build the project.
+3. *(Optional)* Deploy for redistribution:
 
 ```bash
 /path/to/macdeployqt qkontrol.app
 ```
 
-### Windows
-- Use Qt Creator with **MinGW 64-bit** kit.
-- Build `source/qkontrol.pro`.
-- Copy required Qt/MSYS2 DLLs next to `qkontrol.exe` if not using deployment tooling.
+</details>
 
----
+<details>
+<summary><strong>Windows</strong> — Qt Creator (MinGW)</summary>
 
-## 3) First start checklist
+1. Open `source/qkontrol.pro` in Qt Creator with the **MinGW 64-bit** kit.
+2. Build the project.
+3. Copy required Qt/MSYS2 DLLs next to `qkontrol.exe` if not using deployment tooling.
+
+</details>
+
+### First Launch
 
 1. Connect and power on your Komplete Kontrol MK2.
-2. Start qKontrol.
-3. If no keyboard is found, verify USB cable/port and OS permissions/driver setup.
-4. On macOS, allow qKontrol to terminate NI background agents if you need display access.
-5. On Linux, if running as non-root fails, install the provided udev rule (see caveats section).
+2. Start **qKontrol**.
+3. If the keyboard is not detected, verify USB connectivity and OS-level permissions (see [Troubleshooting](#troubleshooting)).
+4. **macOS only:** allow qKontrol to terminate NI background agents if display communication is needed.
+5. **Linux only:** if running as non-root fails, install the provided udev rule (see [Troubleshooting](#troubleshooting)).
 
 ---
 
-## General usage manual
+## Usage
 
-## Workflow overview
+### Workflow Overview
 
-A practical flow for most users:
+1. Configure mappings and zones across the UI tabs.
+2. Click **Submit** to push the current settings to the device.
+3. *(Optional)* Set custom screen images and color themes.
+4. Save the setup to a `.qcp` preset file.
+5. Load, test, and iterate.
+6. *(Optional)* Enable OSC mode and connect to your DAW endpoint.
 
-1. Configure mappings and zones in UI tabs.
-2. Click **Submit** to push current settings to device.
-3. (Optional) Set screen images/colors.
-4. Save to `.qcp` preset.
-5. Load/test and iterate.
-6. (Optional) enable OSC mode and connect to DAW endpoint.
+### Mapping Controls
 
-## Mapping controls
+#### Knobs
+- Configure mode, MIDI channel, CC number, and descriptive labels.
+- In plugin mode, knob labels update from OSC-provided parameter names.
+- Display values refresh on each HID poll cycle.
 
-### Knobs
-- Configure mode, channel, CC, and descriptive labels.
-- In plugin mode, knob labels can be updated from OSC-provided parameter names.
-- Value rendering on displays updates in the HID poll loop.
+#### Buttons
+- Navigate and configure button pages.
+- Mode selection controls which settings are exposed.
+- Backlight state is written via HID output packets.
 
-### Buttons
-- Button pages can be navigated and configured.
-- Mode selection affects available settings.
-- Backlight state is written via HID output packet updates.
+#### Key Zones
+- Define split/layer ranges with note-name spinboxes.
+- Configure per-zone MIDI behavior and note limits.
+- Changes take effect immediately after **Submit**.
 
-### Key zones
-- Define split/layer ranges using note-name spinboxes.
-- Configure per-zone MIDI behavior and limits.
-- Submit changes to apply immediately to hardware.
+#### Pedals / Tip / Ring
+- Supports both continuous and switch behavior.
+- Visible fields adapt dynamically to the selected mode.
 
-### Pedals / tip / ring
-- Continuous and switch behavior are both supported.
-- UI dynamically changes visible fields based on mode/switch-type selection.
-
-### Display images and colors
-- Left/right displays can be assigned image content.
-- Text/value/parameter/divider colors are configurable.
-- Current display image paths are serialized into presets as embedded PNG data.
+#### Display Images & Colors
+- Assign custom images to the left and right displays.
+- Configurable colors for text, values, parameters, and dividers.
+- Display image paths are embedded as Base64 PNG data in preset files.
 
 ---
 
-## OSC mode manual
+## OSC Integration
 
-OSC is optional and can be used for:
-- transport commands (play, stop, record, metronome/click, loop/repeat)
-- device/parameter value send events
-- receiving track/device/time data for display overlays
-- receiving parameter names in plugin mode
+OSC is entirely optional. When enabled it supports:
 
-### OSC setup steps
+- **Transport control** — play, stop, record, metronome/click, loop/repeat
+- **Parameter forwarding** — send control values to a remote OSC target
+- **Display overlays** — receive track/device/time strings and plugin parameter names
 
-1. Open OSC dialog from the main window.
-2. Configure:
-   - enabled flag
-   - target hostname/IP
-   - local UDP port
-   - remote UDP port
-3. Apply changes (writes to `~/.qkontrol/osc.ini`).
-4. Restart or re-open OSC config as needed.
+### Setup
 
-### OSC behavior details
+1. Open the **OSC dialog** from the main window.
+2. Fill in:
+   - **Enabled** toggle
+   - **Target hostname/IP**
+   - **Local UDP port**
+   - **Remote UDP port**
+3. Apply — settings are persisted to `~/.qkontrol/osc.ini`.
 
-- qKontrol binds a UDP socket and listens for inbound messages.
-- In plugin mode, control values can be sent out to remote OSC targets.
-- Track/device/time strings are rendered onto bottom display lines when changed.
+### Behavior
 
----
-
-## Configuration and data storage
-
-qKontrol uses two main configuration layers:
-
-## A) Preset files (`.qcp`)
-
-- Format: XML
-- Saved via Save action in GUI
-- Loaded via Load action in GUI
-- Typical location: user-chosen path (commonly under home directory)
-
-### `.qcp` contains
-- widget values for spinboxes, checkboxes, radiobuttons, sliders, spansliders, comboboxes, toolboxes, tabwidgets
-- display color values
-- left and right screen bitmaps as Base64-encoded PNG
-- selected line-edit description fields
-
-### Access/edit strategy
-- Preferred: edit through qKontrol UI and re-save.
-- Advanced/manual: edit XML directly in a text editor and reload (ensure tags match widget object names).
-
-## B) OSC settings (`~/.qkontrol/osc.ini`)
-
-Stored as INI using Qt `QSettings` with keys:
-- `enabled` (bool)
-- `hostname` (string)
-- `local` (int)
-- `remote` (int)
-
-### Access/edit strategy
-- Preferred: OSC dialog.
-- Advanced/manual: edit `~/.qkontrol/osc.ini` directly while app is closed.
+- qKontrol binds a UDP socket on the configured local port and listens for inbound messages.
+- In plugin mode, control values are forwarded to the remote OSC target.
+- Incoming track/device/time strings are rendered on the bottom display lines.
 
 ---
 
-## Caveats and common solutions
+## Configuration & Presets
 
-### 1) Linux permission errors (device access denied)
+qKontrol uses two configuration layers:
 
-**Symptoms:** keyboard not found unless running as root.
+### Preset files (`.qcp`)
 
-**Fix:** install udev rule shipped in repo:
+XML files saved and loaded from the GUI. They store:
 
-```bash
-sudo cp source/79-udev-komplete.rules /etc/udev/rules.d/
-sudo udevadm control --reload-rules
-sudo udevadm trigger
-# unplug/replug keyboard or reboot
-```
+- All widget values (spinboxes, checkboxes, radio buttons, sliders, comboboxes, etc.)
+- Display color values
+- Left/right screen bitmaps as Base64-encoded PNG
+- Control label text
 
-### 2) macOS display communication blocked
+**Editing:** prefer the qKontrol UI. For advanced edits, open the XML in a text editor — tag names correspond to Qt widget object names.
 
-**Symptoms:** mapping works partially but displays do not update.
+### OSC settings (`~/.qkontrol/osc.ini`)
 
-**Cause:** NI background services holding device interfaces.
+INI file managed by Qt `QSettings` with keys: `enabled`, `hostname`, `local`, `remote`.
 
-**Fix:** allow qKontrol prompt to kill NI services, or terminate relevant processes manually.
-
-### 3) No live CC value visualization until DAW/app is open
-
-**Symptoms:** expected value updates are absent.
-
-**Cause:** keyboard firmware behavior: HID value data appears only while MIDI stream is actively consumed.
-
-**Fix:** open a MIDI client/DAW that receives data from the keyboard.
-
-### 4) Preset navigation buttons repeat unexpectedly
-
-**Symptoms:** left/right key actions may repeat continuously.
-
-**Fix/workaround:** reconnect device; verify no stuck hardware input state; retry with latest build.
-
-### 5) Windows coexistence issues with NI software stack
-
-**Symptoms:** HID path conflict / qKontrol cannot interact as expected.
-
-**Fix:** follow driver separation workflow (NI driver for MIDI + Zadig replacement on target HID interface).
+**Editing:** prefer the OSC dialog. For manual edits, modify the file while the application is closed.
 
 ---
 
-## Troubleshooting checklist
+## Troubleshooting
 
-- Confirm USB connectivity and power state.
-- Confirm device is MK2 generation.
-- Check OS-level permissions/driver claim status.
+| Symptom | Cause | Fix |
+|---|---|---|
+| Keyboard not found (Linux, non-root) | Missing udev rule | Install the bundled rule: `sudo cp source/79-udev-komplete.rules /etc/udev/rules.d/ && sudo udevadm control --reload-rules && sudo udevadm trigger`, then replug |
+| Displays don’t update (macOS) | NI background services holding device interfaces | Allow qKontrol to terminate NI services when prompted, or stop them manually |
+| No live CC value updates | Keyboard firmware only sends HID data while MIDI is consumed | Open a DAW or MIDI client that receives from the keyboard |
+| Preset navigation buttons repeat | Stuck hardware input state | Replug the device; retry with the latest build |
+| HID path conflict (Windows) | NI driver and qKontrol competing for the same interface | Follow the driver separation workflow: NI driver for MIDI + Zadig for the target HID interface |
+
+**General checklist:**
+
+- Confirm USB connectivity and device power.
+- Confirm the device is an MK2 (dual-display) model.
+- Check OS-level permissions and driver claim status.
 - Verify OSC IP/port pair and network reachability.
 - Test with a fresh preset and default mappings.
-- Run from terminal to observe runtime logs/messages.
+- Run from a terminal to observe runtime log output.
 
 ---
 
-## Possible improvements / roadmap ideas
+## Contributing
 
-- Migrate build system to CMake for modern multi-platform packaging workflows.
-- Add formal release binaries and platform-specific installers.
-- Add automatic dependency/driver checks on startup (per OS).
-- Improve OSC interoperability presets for popular DAWs beyond Bitwig.
-- Add import/export for human-friendly JSON/YAML mapping profiles.
-- Add schema validation and version migration for `.qcp` files.
-- Improve error reporting for HID open/bind failures.
-- Add UI-level test coverage and headless integration checks.
-- Add robust debounce handling for repeated navigation key events.
-- Improve documentation around Windows driver selection with exact VID/PID/interface screenshots.
+Contributions are welcome! To get started:
+
+1. Fork the repository and create a feature branch.
+2. Build and test your changes locally (see [Getting Started](#getting-started)).
+3. Open a pull request with a clear description of the change and its motivation.
+
+### Project layout
+
+| File | Purpose |
+|---|---|
+| `source/main.cpp` | Qt app lifecycle, main window initialization |
+| `source/qkontrol.cpp` / `.h` | Main window: HID init, UI wiring, polling, OSC, preset I/O |
+| `source/oscdialog.cpp` / `.h` | OSC config dialog and `~/.qkontrol/osc.ini` persistence |
+| `source/qkontrol.ui` / `oscdialog.ui` | Qt Designer UI layouts |
+| `source/qkontrol.pro` | Qt modules and per-platform library linkage |
+| `source/79-udev-komplete.rules` | Linux udev permissions rule |
 
 ---
 
-## Licensing
+## Roadmap
 
-- Main project is distributed under LGPL terms (see `LICENSE`).
-- Included libQXT-derived widgets in `source/widgets/` include their own licensing texts.
+- [ ] Migrate build system to CMake for modern multi-platform packaging
+- [ ] Add formal release binaries and platform-specific installers
+- [ ] Automatic dependency/driver checks on startup (per OS)
+- [ ] Improve OSC interoperability presets for popular DAWs beyond Bitwig
+- [ ] Import/export human-friendly JSON/YAML mapping profiles
+- [ ] Schema validation and version migration for `.qcp` files
+- [ ] Better error reporting for HID open/bind failures
+- [ ] UI-level test coverage and headless integration checks
+- [ ] Robust debounce handling for repeated navigation key events
+- [ ] Windows driver-selection guide with exact VID/PID/interface screenshots
 
 ---
 
-## Code references
+## License
 
-Helpful starting points in source:
-
-- App entry point: `source/main.cpp`
-- Main window/controller logic: `source/qkontrol.cpp`, `source/qkontrol.h`
-- OSC settings dialog and persistence: `source/oscdialog.cpp`, `source/oscdialog.h`
-- Build and link settings: `source/qkontrol.pro`
-- Linux udev permissions rule: `source/79-udev-komplete.rules`
+- Main project: [LGPL](LICENSE)
+- libQXT-derived widgets in `source/widgets/`: see per-file license headers
